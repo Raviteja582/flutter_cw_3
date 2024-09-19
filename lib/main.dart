@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,6 +19,38 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   String petName = "My Pet";
   int happinessLevel = 50;
   int hungerLevel = 50;
+  final TextEditingController _nameController = TextEditingController();
+  Timer? _hungerTimer; // Timer for automatic hunger increase
+
+  @override
+  void initState() {
+    super.initState();
+    _startHungerTimer();
+  }
+
+  @override
+  void dispose() {
+    _hungerTimer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  // Timer that increases the hunger level every 30 seconds
+  void _startHungerTimer() {
+    _hungerTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      setState(() {
+        if (hungerLevel < 10) {
+          hungerLevel += 1; // Increase hunger level every 30 seconds
+        }
+      });
+    });
+  }
+
+  void _setPetName() {
+    setState(() {
+      petName = _nameController.text;
+      _nameController.clear();
+    });
+  }
 
   // Function to increase happiness and update hunger when playing with the pet
   void _playWithPet() {
@@ -85,6 +118,20 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Enter your pet\'s name',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: _setPetName,
+              child: const Text('Set Name'),
+            ),
             Text(
               'Name: $petName',
               style: const TextStyle(fontSize: 20.0),
